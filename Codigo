@@ -1,0 +1,43 @@
+package login;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+public class User {
+    public Connection conectarBD() {
+        Connection conn = null;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String url = "jdbc:mysql://127.0.0.1/test?user=lopes&password=123";
+            conn = DriverManager.getConnection(url);
+        } catch (Exception e) {
+            e.printStackTrace(); // Captura e exibe o erro
+        }
+        return conn;
+    }
+
+    public boolean verificarUsuario(String login, String senha) {
+        boolean result = false;
+
+        String sql = "SELECT nome FROM usuarios WHERE login = ? AND senha = ?";
+        try (Connection conn = conectarBD();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             
+            // Define os parâmetros da consulta
+            pstmt.setString(1, login);
+            pstmt.setString(2, senha);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    result = true;
+                    System.out.println("Usuário encontrado: " + rs.getString("nome"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Captura e exibe o erro
+        }
+        return result;
+    }
+}
